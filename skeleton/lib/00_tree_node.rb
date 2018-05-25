@@ -53,7 +53,7 @@ class PolyTreeNode
     else
       @children.each do |child|
         result = child.dfs(target_value)
-        return result if result && (target_value == result.value)
+        return result if result #&& (target_value == result.value)
       end
       nil
     end
@@ -66,7 +66,7 @@ class PolyTreeNode
       return temp if temp.value == target_value
       queue += temp.children
     end
-    nil 
+    nil
   end
 
 end

@@ -23,10 +23,8 @@ class PolyTreeNode
       return "Parent already exist."
 
     else
-      # @parent.remove_child(self) unless parent.nil?
       @parent.children.delete(self) unless parent.nil?
       @parent = node
-      # @parent.add_child(self) unless node.nil?
       @parent.children << self unless node.nil?
     end
   end
@@ -53,7 +51,7 @@ class PolyTreeNode
     else
       @children.each do |child|
         result = child.dfs(target_value)
-        return result if result && (target_value == result.value)
+        return result if result #&& (target_value == result.value)
       end
       nil
     end
@@ -66,7 +64,7 @@ class PolyTreeNode
       return temp if temp.value == target_value
       queue += temp.children
     end
-    nil 
+    nil
   end
 
 end

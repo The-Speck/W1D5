@@ -3,30 +3,25 @@ require "byebug"
 
 class KnightPathFinder
   attr_accessor :visited_pos
+  attr_reader :start
 
   def self.valid_moves(pos)
-    valid_arr = []
-    val = [1,2]
+    row, col = pos
+    arr = []
 
-    2.times do |idx|
-      x, y = val
-      2.times do
-        row = pos[0]+x
-        col = pos[1]+y
-        valid_arr << [row, col] if within_range?(row, col)
-        pos = pos.rotate
-      end
+    arr << [row + 2, col + 1] if within_range?(row + 2, col + 1)
+    arr << [row + 2, col - 1] if within_range?(row + 2, col - 1)
 
-      2.times do
-        row = pos[0]-x
-        col = pos[1]-y
-        valid_arr << [row, col] if within_range?(row, col)
-        pos = pos.rotate
-      end
-      val = val.rotate
-    end
+    arr << [row + 1, col + 2] if within_range?(row + 1, col + 2)
+    arr << [row + 1, col - 2] if within_range?(row + 1, col - 2)
 
-    valid_arr.uniq
+    arr << [row - 2, col - 1] if within_range?(row - 2, col - 1)
+    arr << [row - 2, col + 1] if within_range?(row - 2, col + 1)
+
+    arr << [row - 1, col - 2] if within_range?(row - 1, col - 2)
+    arr << [row - 1, col + 2] if within_range?(row - 1, col + 2)
+
+    arr
   end
 
   def self.within_range?(row, col)
@@ -35,11 +30,6 @@ class KnightPathFinder
     true
   end
 
-  # def valid_travel?(pos)
-  #   row, col = pos
-  #   curr_row, curr_col = visited_pos.last
-  #   (curr_row - row).abs + (curr_col - col).abs == 3
-  # end
 
   def already_visited?(pos)
     visited_pos.include?(pos)
@@ -58,10 +48,41 @@ class KnightPathFinder
   end
 
   def build_move_tree
+    root = PolyTreeNode.new(start)
+    queue = [root]
 
+    until queue.empty?
+      current_move = queue.shift
+      new_moves = new_move_positions(current_move.value)
+
+      new_moves.each do |new_move|
+        child = PolyTreeNode.new(new_move)
+        current_move.add_child(child)
+        queue << child unless child.nil?
+      end
+    end
+
+     @root = root
   end
 
-  def find_path
+  def find_path(end_pos)
+    build_move_tree
+    position = @root.bfs(end_pos)
+    @visited_pos = [start]
+    trace_back(position)
+  end
 
+  def trace_back(pos)
+    trace = []
+    until pos == @root
+      trace << pos.value
+      pos = pos.parent
+    end
+    trace << @root.value
+    trace.reverse
   end
 end
+
+kpf = KnightPathFinder.new([7, 7])
+p kpf.find_path([7, 6]) # => [[0, 0], [1, 2], [2, 4], [3, 6], [5, 5], [7, 6]]
+p kpf.find_path([6, 2]) # => [[0, 0], [1, 2], [2, 0], [4, 1], [6, 2]]
